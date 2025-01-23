@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Task Manager Application
 
-## Getting Started
+This is a full-stack task management application built using Next.js and Node.js.
 
-First, run the development server:
+## Technology Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+-   Next.js
+-   React
+-   TypeScript
+-   Tailwind CSS
+-   Shadcn UI
+-   Node.js
+-   Express
+-   TypeScript
+-   MongoDB
+-   JWT Authentication
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Running Locally
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Server Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Navigate to the server directory:
 
-## Learn More
+    ```
+    cd server
+    ```
 
-To learn more about Next.js, take a look at the following resources:
+2. Install dependencies and start the server:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+    ```
+    npm install
+    npm run dev
+    ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. The server will be running on `http://localhost:5000`.
 
-## Deploy on Vercel
+### Client Setup
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Navigate to the client directory:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    ```
+    cd client
+    ```
+
+2. Install dependencies and start the client:
+
+    ```
+    npm install
+    npm start
+    ```
+
+3. Open your browser and navigate to `http://localhost:3000`.
+
+---
+
+## Running with Docker
+
+1. Clone the repository:
+
+    ```
+    git clone <repository-url>
+    cd <repository-folder>
+    ```
+
+2. Build and start the Docker containers:
+
+    ```
+    docker-compose up --build
+    ```
+
+3. The client will be available at `http://localhost:3000`, and the server at `http://localhost:5000`.
+
+---
+
+## Environment Variables
+
+Create a `.env` file insider server folder:
+
+    ```
+    touch .env
+    ```
+
+    Add the following variables:
+
+    ```
+    MONGODB_URI=mongodb://localhost:27017/your_db
+    MONGODB_URI_DOCKER=mongodb://mongo:27017/your_db
+    JWT_SECRET=your_secret_key
+    PORT=5000
+    ENCRYPTION_SECRET_KEY=your_key
+    ```
+
+## Features
+
+-   User Authentication
+-   Responsive Design
+-   Task Management
+-   Profile Management
