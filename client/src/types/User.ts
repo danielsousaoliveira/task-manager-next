@@ -6,7 +6,6 @@ export type User = {
 };
 
 export type RegisterUser = {
-    id: string;
     username: string;
     email: string;
     password: string;

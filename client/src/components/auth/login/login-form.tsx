@@ -18,11 +18,36 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!validateForm()) {
+            return;
+        }
         try {
             await login(email, password);
             router.push("/tasks");
         } catch (error) {
             toast.error("Login failed. Please try again.", { description: (error as Error).message });
+        }
+    };
+    const validateForm = () => {
+        let errors: String[] = [];
+
+        if (!email) {
+            errors.push("Email is required.");
+        } else if (!/\S+@\S+\.\S+/.test(email)) {
+            errors.push("Email is invalid.");
+        }
+
+        if (!password) {
+            errors.push("Password is required.");
+        }
+
+        if (errors.length > 0) {
+            errors?.forEach((error) => {
+                toast.error(error);
+            });
+            return false;
+        } else {
+            return true;
         }
     };
     return (

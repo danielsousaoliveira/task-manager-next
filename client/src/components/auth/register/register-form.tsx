@@ -9,6 +9,7 @@ import { useAuth } from "@/providers/auth-provider";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ThirdParty } from "@/components/reusable/third-party";
+import { RegisterUser } from "@/types/User";
 
 export function RegisterForm({ className, ...props }: React.ComponentPropsWithoutRef<"form">) {
     const [username, setUsername] = useState("");
@@ -23,6 +24,9 @@ export function RegisterForm({ className, ...props }: React.ComponentPropsWithou
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!validateForm()) {
+            return;
+        }
         try {
             await register(username, email, password);
             toast.success("Registration successful. Redirecting to log in...");
@@ -32,6 +36,36 @@ export function RegisterForm({ className, ...props }: React.ComponentPropsWithou
             toast.error("Register failed. Please try again.", { description: (error as Error).message });
         }
     };
+
+    const validateForm = () => {
+        let errors: String[] = [];
+
+        if (!username) {
+            errors.push("Name is required.");
+        }
+
+        if (!email) {
+            errors.push("Email is required.");
+        } else if (!/\S+@\S+\.\S+/.test(email)) {
+            errors.push("Email is invalid.");
+        }
+
+        if (!password) {
+            errors.push("Password is required.");
+        } else if (password.length < 6) {
+            errors.push("Password must be at least 6 characters.");
+        }
+
+        if (errors.length > 0) {
+            errors?.forEach((error) => {
+                toast.error(error);
+            });
+            return false;
+        } else {
+            return true;
+        }
+    };
+
     return (
         <form className={cn("flex flex-col gap-6", className)} {...props}>
             <div className="flex flex-col items-center gap-2 text-center">
