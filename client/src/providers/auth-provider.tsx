@@ -44,22 +44,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
-    const fetchCurrentUser = async () => {
+    const fetchCurrentUser = async (): Promise<User | undefined> => {
         try {
             setIsLoading(true);
             const userData = await AuthApiHandler.getCurrentUser();
             if (userData) {
                 setCurrentUser(userData.data);
             }
+            return userData.data;
         } catch (error) {
             console.error("Failed to fetch current user:", error);
+            return undefined;
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <AuthContext.Provider value={{ currentUser, isLoading, login, register, logout }}>
+        <AuthContext.Provider value={{ currentUser, isLoading, login, register, logout, fetchCurrentUser }}>
             {children}
         </AuthContext.Provider>
     );

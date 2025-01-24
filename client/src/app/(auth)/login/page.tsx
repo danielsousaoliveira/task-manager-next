@@ -2,10 +2,10 @@
 
 import { ClipboardList } from "lucide-react";
 import { AnimatedLoginForm } from "@/components/auth/login/animated-login-form";
-import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Toaster } from "@/components/ui/sonner";
+import { StartingButton } from "@/components/reusable/starting-button";
 
 export default function Login() {
     const [showLogin, setShowLogin] = useState<boolean>(false);
@@ -49,14 +49,7 @@ export default function Login() {
                         <h1 className="text-5xl font-bold text-white">Task Manager</h1>
                     </div>
 
-                    <Button
-                        variant="outline"
-                        size="xlg"
-                        className="bg-white text-black hover:bg-slate-200"
-                        onClick={handleGetStarted}
-                    >
-                        <span className="text-xl font-bold">Get Started</span>
-                    </Button>
+                    <StartingButton handleGetStarted={handleGetStarted} />
                 </motion.div>
             </motion.div>
 

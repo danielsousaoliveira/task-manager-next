@@ -6,17 +6,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Edit, Trash } from "lucide-react";
+import { Plus } from "lucide-react";
 import { ClipboardList } from "lucide-react";
 import { TaskService } from "@/services/task-service";
 import { Task } from "@/types/Task";
 import { AnimatePresence, motion } from "framer-motion";
+import { TaskCard } from "@/components/reusable/task-card";
+import { EditModal } from "@/components/reusable/edit-modal";
 
 export default function TasksPage() {
     const [tasks, setTasks] = useState<Task[]>([]);
-    const [newTask, setNewTask] = useState({ title: "", description: "", status: "To Do" });
-    const [filter, setFilter] = useState("All");
-    const [editingTask, setEditingTask] = useState<Task | null>(null);
+    const [newTask, setNewTask] = useState<Task>({ id: "", title: "", description: "", status: "To Do" });
+    const [filter, setFilter] = useState<string>("All");
+    const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
     const taskService = new TaskService();
 
     const fetchTasks = async () => {
@@ -32,7 +34,7 @@ export default function TasksPage() {
         if (newTask.title) {
             await taskService.addNewTask(newTask);
             fetchTasks();
-            setNewTask({ title: "", description: "", status: "To Do" });
+            setNewTask({ id: "", title: "", description: "", status: "To Do" });
         }
     };
 
@@ -40,7 +42,7 @@ export default function TasksPage() {
         if (editingTask) {
             await taskService.updateTaskById(editingTask.id, editingTask);
             fetchTasks();
-            setEditingTask(null);
+            setEditingTask(undefined);
         }
     };
 
@@ -124,43 +126,12 @@ export default function TasksPage() {
                             className="space-y-2"
                         >
                             {filteredTasks.map((task) => (
-                                <Card key={task.id}>
-                                    <CardContent className="p-4">
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <h4 className="font-semibold">{task.title}</h4>
-                                                <p className="text-sm text-muted-foreground">{task.description}</p>
-                                                <span
-                                                    className={`text-xs text-primary px-2 py-1 rounded-full ${
-                                                        task.status == "To Do"
-                                                            ? "bg-red-500"
-                                                            : task.status == "In Progress"
-                                                            ? "bg-yellow-500"
-                                                            : "bg-green-500"
-                                                    }`}
-                                                >
-                                                    {task.status}
-                                                </span>
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <Button
-                                                    variant="outline"
-                                                    size="icon"
-                                                    onClick={() => setEditingTask(task)}
-                                                >
-                                                    <Edit className="h-4 w-4" />
-                                                </Button>
-                                                <Button
-                                                    variant="destructive"
-                                                    size="icon"
-                                                    onClick={() => deleteTask(task.id)}
-                                                >
-                                                    <Trash className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                <TaskCard
+                                    key={task.id}
+                                    task={task}
+                                    deleteTask={deleteTask}
+                                    setEditingTask={setEditingTask}
+                                />
                             ))}
                         </motion.div>
                     </motion.div>
@@ -174,48 +145,7 @@ export default function TasksPage() {
                         transition={{ duration: 0.3 }}
                         className="fixed inset-0 bg-background/80 flex items-center justify-center"
                     >
-                        <Card className="w-full max-w-md">
-                            <CardHeader>
-                                <CardTitle>Edit Task</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4">
-                                    <Input
-                                        placeholder="Task title"
-                                        value={editingTask.title}
-                                        onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
-                                    />
-                                    <Textarea
-                                        placeholder="Description"
-                                        value={editingTask.description}
-                                        onChange={(e) =>
-                                            setEditingTask({ ...editingTask, description: e.target.value })
-                                        }
-                                    />
-                                    <Select
-                                        value={editingTask.status}
-                                        onValueChange={(value) =>
-                                            setEditingTask({ ...editingTask, status: value as Task["status"] })
-                                        }
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Status" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="To Do">To Do</SelectItem>
-                                            <SelectItem value="In Progress">In Progress</SelectItem>
-                                            <SelectItem value="Done">Done</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <div className="flex justify-end gap-2">
-                                        <Button variant="outline" onClick={() => setEditingTask(null)}>
-                                            Cancel
-                                        </Button>
-                                        <Button onClick={updateTask}>Update</Button>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <EditModal editingTask={editingTask} setEditingTask={setEditingTask} updateTask={updateTask} />
                     </motion.div>
                 )}
             </Card>

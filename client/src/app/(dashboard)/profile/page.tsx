@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { User } from "@/types/User";
 import { AnimatePresence, motion } from "framer-motion";
 import { UserService } from "@/services/user-service";
+import { ProfileForm } from "@/components/reusable/profile-form";
 
 export default function ProfilePage() {
     const [user, setUser] = useState<User | undefined>();
@@ -19,15 +20,27 @@ export default function ProfilePage() {
     const [editedUser, setEditedUser] = useState<User>(user ?? { id: "", username: "", email: "", avatar: "" });
     const userService = new UserService();
 
-    const { logout, currentUser } = useAuth();
+    const { logout, currentUser, fetchCurrentUser } = useAuth();
     const router = useRouter();
 
+    const getCurrentUser = async () => {
+        try {
+            const userData = await fetchCurrentUser();
+            if (userData) {
+                setUser(userData);
+            }
+        } catch (error) {
+            console.error("Failed to fetch current user:", error);
+        }
+    };
+
     useEffect(() => {
+        getCurrentUser();
         if (currentUser) {
             setUser(currentUser);
             setEditedUser(currentUser);
         }
-    }, [currentUser]);
+    }, []);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -56,56 +69,34 @@ export default function ProfilePage() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex flex-col items-center space-y-4">
-                            <Avatar className="w-24 h-24">
-                                <AvatarImage src={user?.avatar} alt={user?.username} />
-                                <AvatarFallback>{user?.username?.charAt(0)}</AvatarFallback>
-                            </Avatar>
+                            <motion.div
+                                key="avatar"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 1 }}
+                            >
+                                <Avatar className="w-24 h-24">
+                                    <AvatarImage src={user?.avatar} alt={user?.username} />
+                                    <AvatarFallback delayMs={5000}>{user?.username?.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                            </motion.div>
 
                             {isEditing ? (
-                                <motion.form
+                                <motion.div
                                     key="edit-form"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: 20 }}
                                     transition={{ duration: 0.3 }}
-                                    onSubmit={handleSubmit}
-                                    className="space-y-4 w-full"
+                                    className="w-full"
                                 >
-                                    <div>
-                                        <Label htmlFor="avatar">Avatar Url</Label>
-                                        <Input
-                                            id="avatar"
-                                            value={editedUser?.avatar}
-                                            onChange={(e) => setEditedUser({ ...editedUser, avatar: e.target.value })}
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="name">Name</Label>
-                                        <Input
-                                            id="name"
-                                            value={editedUser.username}
-                                            onChange={(e) => setEditedUser({ ...editedUser, username: e.target.value })}
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="email">Email</Label>
-                                        <Input
-                                            id="email"
-                                            type="email"
-                                            value={editedUser.email}
-                                            onChange={(e) => setEditedUser({ ...editedUser, email: e.target.value })}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="flex justify-end gap-2">
-                                        <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
-                                            Cancel
-                                        </Button>
-                                        <Button type="submit">Save</Button>
-                                    </div>
-                                </motion.form>
+                                    <ProfileForm
+                                        handleSubmit={handleSubmit}
+                                        editedUser={editedUser}
+                                        setEditedUser={setEditedUser}
+                                        setIsEditing={setIsEditing}
+                                    />
+                                </motion.div>
                             ) : (
                                 <motion.div
                                     key="profile-view"
