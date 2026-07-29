@@ -76,7 +76,7 @@ router.patch(
       const { title, description, status } = req.body;
 
       if (status && !["To Do", "In Progress", "Done"].includes(status)) {
-        return res.status(500).json({ error: "Invalid Status" });
+        return res.status(400).json({ error: "Invalid Status" });
       }
 
       const task = await Tasks.findOne({
