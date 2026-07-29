@@ -2,7 +2,6 @@ import request from "supertest";
 import app from "../server";
 import { connectTestDb, clearDatabase } from "./helpers";
 import Task from "../models/Tasks";
-import mongoose from "mongoose";
 
 beforeAll(async () => {
   await connectTestDb();
