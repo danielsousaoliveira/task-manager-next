@@ -1,64 +1,57 @@
-import express from "express";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import User from "../models/User";
-import { Response } from "express";
-import { authenticateToken } from "../authMiddleware";
-import { AuthenticatedRequest } from "../models/AuthenticatedRequest";
-import { isDeepStrictEqual } from "util";
-import { validateRequest } from "../utils/validationMiddleware";
-import { userRegistrationSchema, userLoginSchema } from "../utils/validation";
+import express from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import User from '../models/User';
+import type { Response } from 'express';
+import { authenticateToken } from '../authMiddleware';
+import type { AuthenticatedRequest } from '../models/AuthenticatedRequest';
+import { isDeepStrictEqual } from 'util';
+import { validateRequest } from '../utils/validationMiddleware';
+import { userRegistrationSchema, userLoginSchema } from '../utils/validation';
 
 const router = express.Router();
 
-router.post(
-  "/register",
-  validateRequest(userRegistrationSchema),
-  async (req, res) => {
-    try {
-      const { username, email, password } = req.body;
-      const user = new User({ username, email, password });
-      await user.save();
-      res.status(201).json({ message: "User registered successfully" });
-    } catch (error) {
-      res.status(500).json({ error: "Registration failed", message: error });
-    }
-  },
-);
+router.post('/register', validateRequest(userRegistrationSchema), async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    const user = new User({ username, email, password });
+    await user.save();
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Registration failed', message: error });
+  }
+});
 
-router.post("/login", validateRequest(userLoginSchema), async (req, res) => {
+router.post('/login', validateRequest(userLoginSchema), async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
-    const token = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_SECRET as string,
-    );
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET as string);
     res.json({ token });
-  } catch (error) {
-    res.status(500).json({ error: "Login failed" });
+  } catch (_error) {
+    res.status(500).json({ error: 'Login failed' });
   }
 });
 
 router.get(
-  "/users/current",
+  '/users/current',
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (!req.user) {
-        return res.status(401).json({ error: "User not authenticated" });
+        return res.status(401).json({ error: 'User not authenticated' });
       }
 
       const user = await User.findById(req.user.userId);
       if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        return res.status(404).json({ error: 'User not found' });
       }
       res.json({
         email: user.email,
@@ -66,24 +59,24 @@ router.get(
         avatar: user.avatar,
         id: user._id,
       });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to get user" });
+    } catch (_error) {
+      res.status(500).json({ error: 'Failed to get user' });
     }
   },
 );
 
 router.patch(
-  "/users/current",
+  '/users/current',
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (!req.user) {
-        return res.status(401).json({ error: "User not authenticated" });
+        return res.status(401).json({ error: 'User not authenticated' });
       }
       const { username, email, avatar } = req.body;
       const user = await User.findById(req.user.userId);
       if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        return res.status(404).json({ error: 'User not found' });
       }
       const updatedUser = {
         ...(username && { username }),
@@ -92,13 +85,13 @@ router.patch(
       };
 
       if (isDeepStrictEqual(updatedUser, user)) {
-        return res.json({ response: "No changes detected" });
+        return res.json({ response: 'No changes detected' });
       }
       user.set(updatedUser);
       await user.save();
-      res.json({ response: "User updated successfully" });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to get user" });
+      res.json({ response: 'User updated successfully' });
+    } catch (_error) {
+      res.status(500).json({ error: 'Failed to get user' });
     }
   },
 );

@@ -33,6 +33,15 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Format
+        run: npm run format
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
   client:
     name: Client (lint + build)
     runs-on: ubuntu-latest
