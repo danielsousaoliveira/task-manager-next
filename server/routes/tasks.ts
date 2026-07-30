@@ -1,4 +1,5 @@
 import express, { type Response } from 'express';
+import mongoose from 'mongoose';
 import Tasks from '../models/Tasks';
 import { authenticateToken } from '../authMiddleware';
 import { encryptMessages, decryptMessages } from '../utils/encryption';
@@ -13,6 +14,8 @@ interface TaskData {
   status?: string;
   id?: string;
 }
+
+const isValidObjectId = (id: string): boolean => mongoose.Types.ObjectId.isValid(id);
 
 const router = express.Router();
 
@@ -46,6 +49,10 @@ router.get('/:id', authenticateToken, async (req: AuthenticatedRequest, res: Res
       return res.status(401).json({ error: 'User not authenticated' });
     }
 
+    if (!isValidObjectId(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid task ID format' });
+    }
+
     const task = await Tasks.findOne({
       _id: req.params.id,
       userId: req.user.userId,
@@ -54,11 +61,11 @@ router.get('/:id', authenticateToken, async (req: AuthenticatedRequest, res: Res
       const decryptedTask = decryptMessages<TaskData>(task?.encryptedTask);
       res.json(decryptedTask);
     } else {
-      res.json([]);
+      res.status(404).json({ error: 'Task not found' });
     }
   } catch (error) {
-    console.error('Error fetching tasks:', error);
-    res.status(500).json({ error: 'Failed to fetch tasks' });
+    console.error('Error fetching task:', error);
+    res.status(500).json({ error: 'Failed to fetch task' });
   }
 });
 
@@ -70,6 +77,10 @@ router.patch(
     try {
       if (!req.user) {
         return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      if (!isValidObjectId(req.params.id)) {
+        return res.status(400).json({ error: 'Invalid task ID format' });
       }
 
       const { title, description, status } = req.body;
@@ -104,11 +115,11 @@ router.patch(
         await task.save();
         res.json({ response: 'Task updated successfully' });
       } else {
-        res.json([]);
+        res.status(404).json({ error: 'Task not found' });
       }
     } catch (error) {
-      console.error('Error fetching tasks:', error);
-      res.status(500).json({ error: 'Failed to fetch tasks' });
+      console.error('Error updating task:', error);
+      res.status(500).json({ error: 'Failed to update task' });
     }
   },
 );
@@ -143,8 +154,8 @@ router.post(
       await task.save();
       res.json({ response: 'Task created successfully' });
     } catch (error) {
-      console.error('Error processing message:', error);
-      res.status(500).json({ error: 'Failed to process message' });
+      console.error('Error creating task:', error);
+      res.status(500).json({ error: 'Failed to create task' });
     }
   },
 );
@@ -154,7 +165,15 @@ router.delete('/:id', authenticateToken, async (req: AuthenticatedRequest, res: 
     if (!req.user) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
-    await Tasks.deleteOne({ _id: req.params.id, userId: req.user.userId });
+
+    if (!isValidObjectId(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid task ID format' });
+    }
+
+    const result = await Tasks.deleteOne({ _id: req.params.id, userId: req.user.userId });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
     res.json({ response: 'Task deleted successfully' });
   } catch (error) {
     console.error('Error deleting task:', error);

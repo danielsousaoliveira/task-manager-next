@@ -2,19 +2,21 @@
 
 import { cookies } from "next/headers";
 
+const TOKEN_NAME = "token";
+
 export async function setToken(token: string) {
-    (await cookies()).set(process.env.TOKEN_NAME as string, token, {
+    (await cookies()).set(TOKEN_NAME, token, {
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV === 'production',
         maxAge: 60 * 60 * 24 * 7,
         path: "/",
     });
 }
 
 export async function getToken(): Promise<string | undefined> {
-    return (await cookies()).get("token")?.value;
+    return (await cookies()).get(TOKEN_NAME)?.value;
 }
 
 export async function removeToken() {
-    (await cookies()).delete(process.env.TOKEN_NAME as string);
+    (await cookies()).delete(TOKEN_NAME);
 }

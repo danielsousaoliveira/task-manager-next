@@ -32,7 +32,7 @@ This is a full-stack task management application built using Next.js and Node.js
     npm run dev
     ```
 
-3. The server will be running on `http://localhost:5000`.
+3. The server will be running on `http://localhost:5001`.
 
 ### Client Setup
 
@@ -68,13 +68,21 @@ This is a full-stack task management application built using Next.js and Node.js
     docker-compose up --build
     ```
 
-3. The client will be available at `http://localhost:3000`, and the server at `http://localhost:5000`.
+3. The client will be available at `http://localhost:3000`, and the server at `http://localhost:5001`.
+
+## Screenshots
+
+### Login Page
+![Login Page](img/login.png)
+
+### Main Page
+![Main Page](img/main.png)
 
 ---
 
 ## Environment Variables
 
-Create a `.env` file insider server folder:
+Create a `.env` file inside server folder:
 
     ```
     touch .env
@@ -86,7 +94,7 @@ Create a `.env` file insider server folder:
     MONGODB_URI=mongodb://localhost:27017/your_db
     MONGODB_URI_DOCKER=mongodb://mongo:27017/your_db
     JWT_SECRET=your_secret_key
-    PORT=5000
+    PORT=5001
     ENCRYPTION_SECRET_KEY=your_key
     ```
 

@@ -1,18 +1,21 @@
-version: "3"
 services:
     server:
         build: ./server
         ports:
-            - "5000:5000"
+            - "5001:5001"
         environment:
-            - MONGODB_URI=${MONGODB_URI_DOCKER}
+            - MONGODB_URI=mongodb://mongo:27017/task-manager
             - JWT_SECRET=${JWT_SECRET}
             - ENCRYPTION_SECRET_KEY=${ENCRYPTION_SECRET_KEY}
+            - PORT=5001
         depends_on:
             - mongo
 
     client:
-        build: ./client
+        build:
+            context: ./client
+            args:
+                NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5001/api}
         ports:
             - "3000:3000"
         depends_on:
